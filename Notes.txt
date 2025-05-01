@@ -1,0 +1,8 @@
+Defaults:
+ehsyear but can be set to financial year [applies to household function only]
+detailed variables (from bespoke list), but can be set to just importing the derived variables
+
+Functions:
+ehs_sl: household, housing stock
+ehs_eul: household, housing stock
+seh_eul: just the 15 year version

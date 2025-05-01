@@ -1,0 +1,25 @@
+Package: ehsr
+Type: Package
+Title: Imports Saved Data from the English Housing Survey
+Version: 0.1.0
+Authors@R: person("James", "Gleeson", email = "jimgleeson@gmail.com",
+  role = c("aut", "cre"))
+Description: Functions to easily import microdata from English Housing Survey 
+    datasets that have been downloaded from the UK Data Service. When provided 
+    with a folder where the EHS datasets are saved (including in sub-folders), 
+    ehsr will identify and import data for the years you specify, 
+    distinguishing between the household and housing stock datasets. It will 
+    also standardise variable names and value labels where these have evolved 
+    over time. 
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 3.5)
+Imports: 
+    dplyr,
+    haven,
+    labelled,
+    magrittr,
+    purrr
+RoxygenNote: 7.3.2
