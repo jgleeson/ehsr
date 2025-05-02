@@ -6,7 +6,16 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of ehsr is to …
+An R package to facilitate the importation of English Housing Survey
+(EHS) data files that you have already downloaded from the UK Data
+Service. When pointed to a folder where the EHS files are saved, ehsr
+can identify and import the files for a given year or series of years,
+join them together into a single object, standardise variable names and
+convert labelled values to factors.
+
+Your use of data downloaded from the UK Data Service must be consistent
+with the requirements and conditions of the UKDS that you agreed to when
+accessing the data.
 
 ## Installation
 
@@ -20,33 +29,15 @@ pak::pak("jgleeson/ehsr")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+`ehsr` currently contains two functions, one to import just the
+‘derived’ EHS datasets and another to additionally import a defined set
+of variables from the detailed datasets. If you have already downloaded
+the EHS special licence data for 2022 and have assigned the path where
+your EHS datasets are saved to the ‘folder’ object, the first function
+is used as follows.
 
 ``` r
 library(ehsr)
-## basic example code
+
+d <- hh_derived(folder, 2022)
 ```
-
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
-
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
