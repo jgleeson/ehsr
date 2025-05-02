@@ -40,22 +40,13 @@ is used as follows.
 library(ehsr)
 
 d <- hh_derived(folder, 2022)
+#> Starting to import data for year(s) selected
+#> Importing survey files for 2022...
+#> Combining data for multiple years (if applicable)
+```
+
+``` r
 
 head(d)
-#> # A tibble: 6 × 139
-#>   serial_number hweight   paired   fqtr  fmonth fyear fimonth fiqtr fiyear pqtr 
-#>   <chr>         <dbl+lbl> <fct>    <fct> <fct>  <dbl> <fct>   <fct> <dbl+> <fct>
-#> 1 20230000002   1739.     Not pai… Quar… <NA>   2022  October quar… 2022   <NA> 
-#> 2 20230000008    829.     Not pai… Quar… Janua… 2022  January quar… 2023   <NA> 
-#> 3 20230000024    807.     Not pai… Quar… Novem… 2022  Novemb… quar… 2022   quar…
-#> 4 20230000026    836.     Not pai… Quar… Janua… 2022  January quar… 2023   <NA> 
-#> 5 20230000031   4937.     Not pai… Quar… Janua… 2022  January quar… 2023   <NA> 
-#> 6 20230000032   1388.     Not pai… Quar… Janua… 2022  January quar… 2023   quar…
-#> # ℹ 129 more variables: pyear <dbl+lbl>, pmonth <fct>, tenure8x <fct>,
-#> #   tenure4x <fct>, tenure2x <fct>, region <fct>, region3x <fct>,
-#> #   ru11morph <fct>, ru11contxt <fct>, ru11combin <fct>, govreg1 <fct>,
-#> #   imd1910 <fct>, hhcompx <fct>, hhcomp1 <fct>, hhtype11 <fct>, hhtype7 <fct>,
-#> #   hhtype6 <fct>, hhsizex <dbl+lbl>, famnumx <dbl+lbl>, loncoupx <fct>,
-#> #   nlpar <dbl+lbl>, ncouple <dbl+lbl>, nsing <dbl+lbl>, ndepchild <dbl+lbl>,
-#> #   nxdepch <dbl+lbl>, otherfam <fct>, othfamlp <fct>, noUnits1 <fct>, …
+#> NULL
 ```

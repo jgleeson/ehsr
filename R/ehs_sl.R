@@ -7,8 +7,10 @@ hh_derived <- function(folder, years){
   files <- list.files(folder, recursive = T)
   hh <- purrr::map_dfr(years, function(year){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
+    message("Starting to import data for year(s) selected")
 
     # import EHS datasets
+    message("Importing survey files for ", year, "...")
     gen <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$general), sep = ""))
     int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$interview), sep = ""))
 
@@ -29,6 +31,7 @@ hh_derived <- function(folder, years){
     hh$serial_number <- as.character(hh$serial_number)
     hh <- hh %>% dplyr::mutate(london = dplyr::case_when(region == "London" ~ "London", TRUE ~ "Rest of England"))
   })
+  message("Combining data for multiple years (if applicable)")
 }
 
 #' Import special licence EHS data - including selected variables from detailed datasets
