@@ -8,7 +8,7 @@
 
 An R package to facilitate the importation of English Housing Survey
 (EHS) data files that you have already downloaded from the UK Data
-Service. When pointed to a folder where the EHS files are saved, ehsr
+Service. When pointed to a folder where the EHS files are saved, `ehsr`
 can identify and import the files for a given year or series of years,
 join them together into a single object, standardise variable names and
 convert labelled values to factors.
@@ -19,7 +19,7 @@ accessing the data.
 
 ## Installation
 
-You can install the development version of ehsr from
+You can install the development version of `ehsr` from
 [GitHub](https://github.com/) with:
 
 ``` r
