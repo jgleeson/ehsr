@@ -43,6 +43,4 @@ folder <- ("~/Library/CloudStorage/OneDrive-SharedLibraries-GreaterLondonAuthori
 library(ehsr)
 
 d <- hh_derived(folder, 2022)
-
-head(d)
 ```

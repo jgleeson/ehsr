@@ -31,7 +31,6 @@ hh_derived <- function(folder, years){
     hh$serial_number <- as.character(hh$serial_number)
     hh <- hh %>% dplyr::mutate(london = dplyr::case_when(region == "London" ~ "London", TRUE ~ "Rest of England"))
   })
-  message("Combining data for multiple years (if applicable)")
 }
 
 #' Import special licence EHS data - including selected variables from detailed datasets

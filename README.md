@@ -40,13 +40,4 @@ is used as follows.
 library(ehsr)
 
 d <- hh_derived(folder, 2022)
-#> Starting to import data for year(s) selected
-#> Importing survey files for 2022...
-#> Combining data for multiple years (if applicable)
-```
-
-``` r
-
-head(d)
-#> NULL
 ```
