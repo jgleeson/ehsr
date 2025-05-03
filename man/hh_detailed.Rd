@@ -2,7 +2,7 @@
 % Please edit documentation in R/ehs_sl.R
 \name{hh_detailed}
 \alias{hh_detailed}
-\title{Import special licence EHS data - including selected variables from detailed datasets}
+\title{Import special licence EHS households data - including selected variables from detailed datasets}
 \usage{
 hh_detailed(folder, years)
 }
@@ -12,5 +12,5 @@ hh_detailed(folder, years)
 \item{years}{A list of years - the fewer and the more recent the less likely this is to return inconsistent data}
 }
 \description{
-Import special licence EHS data - including selected variables from detailed datasets
+Import special licence EHS households data - including selected variables from detailed datasets
 }

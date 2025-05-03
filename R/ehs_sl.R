@@ -1,4 +1,4 @@
-#' Import special licence EHS data - derived variables only
+#' Import special licence EHS household data - derived variables only
 #' @param folder A folder containing EHS downloaded from UKDS and unzipped
 #' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
 #' @export
@@ -33,7 +33,7 @@ hh_derived <- function(folder, years){
   })
 }
 
-#' Import special licence EHS data - including selected variables from detailed datasets
+#' Import special licence EHS households data - including selected variables from detailed datasets
 #' @param folder A folder containing EHS downloaded from UKDS and unzipped
 #' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
 #' @export
@@ -236,3 +236,164 @@ hh_detailed <- function(folder, years){
                                  "wymov6mos10b", "wymov6mos11b", "wymov6mos12b")))
   })
 }
+
+#' Import special licence EHS housing stock data - including selected variables from detailed datasets
+#' @param folder A folder containing EHS downloaded from UKDS and unzipped
+#' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
+#' @export
+
+hstock_detailed <- function(folder, years){
+  files <- list.files(folder, recursive = T)
+  hh <- purrr::map_dfr(years, function(year){
+    key <- dplyr::filter(sl_key, ehsyear == year & dataset == "stock") # import key lookup table
+
+    message("Importing survey files for ", year, "...")
+    # Import stock datasets
+    gen <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$general), sep = ""))
+    int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$interview), sep = ""))
+    phy <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$physical), sep = ""))
+    att <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$attitudes), sep=""))
+    ins <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$interior), sep=""))
+    aro <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$around), sep=""))
+    if(file.exists(paste(folder, key$firstimp_int,sep=""))){firstimp_int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))}
+    if(file.exists(paste(folder, key$vacant,sep=""))){vac <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$vacant), sep=""))}
+    if(file.exists(paste(folder, key$firstimp_phy,sep=""))){firstimp_phy <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_phy), sep=""))}
+    if(file.exists(paste(folder, key$shared,sep=""))){shared <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shared), sep=""))}
+    if(file.exists(paste(folder, key$shape,sep=""))){shape <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))}
+    if(file.exists(paste(folder, key$numflats,sep=""))){numflats <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))}
+    if(file.exists(paste(folder, key$modelled_physical,sep=""))){modelled_physical <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))}
+
+    stock <- left_join(gen, int, by = key$serial_number[1]) %>%
+      left_join(phy %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
+      left_join(att %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
+      left_join(ins %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
+      left_join(aro %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) # combine datasets
+
+    if(exists("vac")){stock <- stock %>% left_join(vac %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("mod_phy")){stock <- stock %>% left_join(mod_phy %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("firstimp_phy")){stock <- stock %>% left_join(firstimp_phy %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("firstimp_int")){stock <- stock %>% left_join(firstimp_int %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("shared")){stock <- stock %>% left_join(shared %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("shape")){stock <- stock %>% left_join(shape %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("numflats")){stock <- stock %>% left_join(numflats %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+
+    stock <- labelled::to_factor(stock, strict = TRUE) # convert text variables to factors
+
+    stock$ehsyear <- year # create EHS year variable
+
+    # standardise variable names
+    stock <- stock %>%
+      rename(region = key$region[key$ehsyear == year],
+             hweight = key$h_weight[key$ehsyear == year],
+             dweight = key$d_weight[key$ehsyear == year],
+             ethhrp2x = key$ethhrp2x[key$ehsyear == year],
+             agehrp4x = key$agehrp4x[key$ehsyear == year],
+             agehrp6x = key$agehrp6x[key$ehsyear == year],
+             ndepchild = key$ndepchild[key$ehsyear == year],
+             serialanon = key$serial_number[key$ehsyear == year])
+
+    # ethnicity
+    stock <- stock %>%
+      mutate(ethhrp2x = case_when(
+        ethhrp2x == "white" ~ "White",
+        TRUE ~ "Non-White"
+      ) %>% forcats::fct_relevel("Non-White", after = 1))
+
+    # hrp age
+    stock <- stock %>%
+      mutate(agehrp4x = case_when(
+        agehrp4x == "16 thru 29" ~ " 16 - 29",
+        agehrp4x == "30 thru 44" ~ " 30 - 44",
+        agehrp4x == "45 thru 64" ~ " 45 - 64",
+        agehrp4x == "65 or over" ~ " 65 or over",
+        TRUE ~ as.character(agehrp4x)
+      ))
+
+    # household type
+    stock$hhtype6 <- stock$hhtype6 %>% forcats::fct_relabel(~ gsub("households", "household", .x))
+
+    # household income
+    # note, this is unequivalised income, so the lowest-income group
+    # is disproportionately composed of pensioners
+    stock <- stock %>%
+      mutate(hhinc5x = case_when(
+        hhinc5x == "1" ~ "lowest 20%",
+        hhinc5x == "2" ~ "quintile 2",
+        hhinc5x == "3" ~ "quintile 3",
+        hhinc5x == "4" ~ "quintile 4",
+        hhinc5x == "5" ~ "highest 20%",
+        TRUE ~ as.character(hhinc5x)
+      ) %>% forcats::fct_relevel("highest 20%", after = 4))
+
+    # levels of bedroom standard
+    stock <- stock %>%
+      mutate(bedstdx = forcats::fct_relevel(bedstdx, "two or more above standard",
+                                   "one above standard",
+                                   "at standard",
+                                   "one below standard"))
+
+    # number of adults - calculated as household size minus number of dependent children
+    stock <- stock %>%
+      mutate(nadults = hhsizex - ndepchild)
+
+    # summary crowding variable
+    stock <- stock %>% mutate(crowd = forcats::fct_collapse(bedstdx,
+                                                   overcrowded = c("two or more below standard", "one below standard"),
+                                                   fine = c("at standard", "one above standard"),
+                                                   underocc = "two or more above standard"))
+
+    # create three-way tenure variable
+    stock <- stock %>%
+      mutate(tenure3 = case_when(
+        tenure4x == "owner occupied" ~ "Owner occupied",
+        tenure4x == "private rented" ~ "Private rented",
+        TRUE ~ "Social housing"
+      ))
+
+
+    # create London/non-London variable
+    stock <- stock %>% mutate(london = case_when(
+      region == "London" ~ "London",
+      TRUE ~ "Rest of England"
+    ))
+
+    stock <- stock %>% dplyr::rename_with(tolower) # all variable names to lower case
+
+    # rent variable
+    stock$rentwkx <- as.double(stock$rentwkx)
+    stock$rentwkx[stock$rentwkx == 88888888] <- NA # deal with missing labels
+    stock$rentwkx[stock$rentwkx == 99999999] <- NA # deal with missing labels
+
+    # actual construction year variable
+    stock <- stock %>% mutate(across(matches("fodconac"), as.double))
+
+    stock$serialanon <- as.character(stock$serialanon)
+
+    # For now let's only select the variables we want.
+    stock <- stock %>% select(any_of(c("serialanon", "ehsyear", "region", "london",
+                                       "hweight", "dweight", "hsatis",
+                                       "dhomesy", "dhhhsrsx", "dhhhsrsy",
+                                       "dhthermy", "dhdisrx", "dhmodx", "dhcosty",
+                                       "dampalf", "vacantx", "vaclngth", "ru11combin",
+                                       "tenure4x", "floorx", "storeyx",
+                                       "hhsizex", "nadults", "ndepchild", "hhltsick",
+                                       "hhtype6", "bedstdx", "ethhrp2x", "ethhrp4x", "ethhrp8x",
+                                       "agehrp4x", "tenure3", "hhinc5x", "bhcinceq", "bhcinceqv5",
+                                       "dwage5x", "dwage6x", "dwage7x", "dwage10x",
+                                       "fodconst", "fodconac",
+                                       "dwtype3x", "dwtype7x", "dwtype8x", "constx", "typerstr",
+                                       "fexplotf", "fexplotr", "fexwidth", "fexp1fdp", "fexp2fdp",
+                                       "fdhmdep1", "fdhmwid1", "fnoflats",
+                                       "cstactbx", "cststdbx", # basic repair costs (total and per m2)
+                                       "cstactcx", "cststdcx", # comprehensive repair costs
+                                       "cstactux", "cststdux", # urgent repair costs
+                                       "hhwhch", "imd1510",
+                                       "epceeb12e", "sap12", "rentwkx", "amthbenx",
+                                       "heat7x",
+                                       "frstimpn", "frstimpb",
+                                       "fexdstep", "finflush", "finbeden", "finbaten", "finwcen",
+                                       "finwawen", "fintrpen", "fincircu", "finlands", "ffcastep", "ffcshare",
+                                       "finramps", "fingrabr", "finlifts", "finhoist", "finelecm",
+                                       "vnstdrdm", "vncrnton", "vnstrnmd", "vnstsdno", "vnstawnw", "fodoccup")))
+
+})}
