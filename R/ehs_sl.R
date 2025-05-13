@@ -44,6 +44,7 @@ hh_detailed <- function(folder, years){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
 
     # Import EHS datasets
+    message("Importing survey files for ", year, "...")
     gen <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$general), sep = ""))
     int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$interview), sep = ""))
 
@@ -192,7 +193,7 @@ hh_detailed <- function(folder, years){
                                  "sexhrp", "sexprt",
                                  "ethhrp2x", "ethhrp4x", "ethhrp8x", "ethprt8x",
                                  "ethhrp4y", "ethhrp8y", # these replace their x counterparts from 2021 onwards, and differ only in that Chinese ethnicity is now included in 'Asian' rather than 'Other'
-                                 "ntnlty", "cry01", "cryspec", "cryo", "cameyr",
+                                 "ntnlty", "cry01", "cryspec", "cryo", "camey2",
                                  "nshare", "nkita", "nbatha",
                                  "nrms2a", "shrms2a", "nrms5", "shbthwc", "hidany",
                                  "ftbuyer", "accomhh1", "prevtenlenb",
