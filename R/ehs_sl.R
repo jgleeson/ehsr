@@ -272,28 +272,28 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
     if(income_filter == "Off" & definition == "wide"){
       people <- people %>%
         mutate(leaver = case_when(
-          ((whinform %in% c(2:5)) & age >=25) ~ 1,
+          ((whinform %in% c(2:5)) & age >= min_age) ~ 1,
           TRUE ~ 0
         ))}
 
     if(income_filter == "On" & definition == "wide"){
       people <- people %>%
         mutate(leaver = case_when(
-          ((whinform %in% c(2:5)) & age >=25 & teldv != -9) ~ 1,
+          ((whinform %in% c(2:5)) & age >= min_age & teldv != -9) ~ 1,
           TRUE ~ 0
         ))}
 
     if(income_filter == "Off" & definition == "narrow"){
       people <- people %>%
         mutate(leaver = case_when(
-          ((whinform %in% c(3:4)) & age >=25) ~ 1,
+          ((whinform %in% c(3:4)) & age >= min_age) ~ 1,
           TRUE ~ 0
         ))}
 
     if(income_filter == "On" & definition == "narrow"){
       people <- people %>%
         mutate(leaver = case_when(
-          ((whinform %in% c(3:4)) & age >=25 & teldv != -9) ~ 1,
+          ((whinform %in% c(3:4)) & age >= min_age & teldv != -9) ~ 1,
           TRUE ~ 0
         ))}
 
