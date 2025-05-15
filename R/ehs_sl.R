@@ -238,6 +238,112 @@ hh_detailed <- function(folder, years){
   })
 }
 
+#' Import special licence EHS households data on concealed households - to be then matched against other imported data
+#' @param folder A folder containing EHS downloaded from UKDS and unzipped
+#' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
+#' @min_age The minimum age of adults to be included
+#' @income_filter Whether to exclude (by turning filter 'on') those for whom there is no income recorded
+#' @definition If set to 'wide', includes those who are 'living here temporarily while looking for work' or who 'will soon be moving into own accommodation' and 'will soon be moving into own accommodation'
+#' @export
+
+hh_concealed <- function(folder, years, min_age, income_filter = "Off", definition = "narrow"){
+  files <- list.files(folder, recursive = T)
+  hh <- purrr::map_dfr(years, function(year){
+    key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
+
+    # Import EHS datasets
+    message("Importing survey files for ", year, "...")
+    gen <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$general), sep = ""))
+    int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$interview), sep = ""))
+    people <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$people), sep=""))
+
+    # generate data on concealed households
+    # in the people dataset, identify those who would like their own housing
+    # Filtered to individuals aged over 24, including non-dependent children,
+    # other relatives and other individuals, whose reason for living in
+    # the household is given, when `definition` = 'narrow', as 'Would like to buy or rent but can't afford
+    # it at the moment' or 'Looking to buy/rent and expect(s) to find something affordable shortly'
+    # When `definition` = 'wide', it also includes 'living here temporarily while looking for work',
+    # 'will soon be moving into own accommodation' and 'will soon be moving into own accommodation'
+    people <- people %>% rename_all(tolower)
+
+    people <- people %>% rename_with(recode, whinform2 = "whinform")
+
+    if(income_filter == "Off" & definition == "wide"){
+      people <- people %>%
+        mutate(leaver = case_when(
+          ((whinform %in% c(2:5)) & age >=25) ~ 1,
+          TRUE ~ 0
+        ))}
+
+    if(income_filter == "On" & definition == "wide"){
+      people <- people %>%
+        mutate(leaver = case_when(
+          ((whinform %in% c(2:5)) & age >=25 & teldv != -9) ~ 1,
+          TRUE ~ 0
+        ))}
+
+    if(income_filter == "Off" & definition == "narrow"){
+      people <- people %>%
+        mutate(leaver = case_when(
+          ((whinform %in% c(3:4)) & age >=25) ~ 1,
+          TRUE ~ 0
+        ))}
+
+    if(income_filter == "On" & definition == "narrow"){
+      people <- people %>%
+        mutate(leaver = case_when(
+          ((whinform %in% c(3:4)) & age >=25 & teldv != -9) ~ 1,
+          TRUE ~ 0
+        ))}
+
+    # find family number of 'leavers'
+    people <- people %>%
+      mutate(leaver_fam = afam * leaver)
+
+    # find sum of leaver individuals in household
+    hhleave <- people %>%
+      group_by_at(key$serial_number[1]) %>%
+      tally(leaver)
+
+    # find number of separate leaver family units in household
+    # this took a while to work out!
+    hhleavefam <- people %>%
+      filter(leaver_fam > 0) %>%
+      group_by_at(c(key$serial_number[1], "leaver_fam")) %>%
+      count() %>%
+      group_by_at(key$serial_number[1]) %>%
+      tally()
+
+    # We now have the number of 'leaver' individuals in 'hhleave',
+    # the number of family units containing a leaver in 'hhleavefam',
+    # and can join this info onto the main household dataset
+
+    hh <- left_join(gen, int, by = key$serial_number[1]) %>% # combine datasets
+     left_join(hhleave, by = key$serial_number[1]) %>%
+      rename(leaver_individuals = n) %>%
+      left_join(hhleavefam, by = key$serial_number[1]) %>%
+      rename(leaver_famunits = n) %>%
+      replace_na(list(leaver_famunits = 0))
+
+    hh <- hh %>% select(-contains(c("quarter"))) # get rid of a rogue duplicated variable, if present
+
+    hh <- labelled::to_factor(hh, strict = TRUE, sort_levels = "none") # convert text variables to factors
+
+    hh$ehsyear <- year # create EHS year variable
+
+    hh <- hh %>%
+      rename(serial_number = key$serial_number[key$ehsyear == year])
+
+    hh$serial_number <- as.character(hh$serial_number)
+
+    # Select the variables of interest
+    hh <- hh %>% select(any_of(c("ehsyear", "serial_number",
+                                 "leaver_individuals", "leaver_famunits")))
+
+  })
+}
+
 #' Import special licence EHS housing stock data - including selected variables from detailed datasets
 #' @param folder A folder containing EHS downloaded from UKDS and unzipped
 #' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
