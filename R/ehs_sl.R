@@ -265,7 +265,7 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
     # it at the moment' or 'Looking to buy/rent and expect(s) to find something affordable shortly'
     # When `definition` = 'wide', it also includes 'living here temporarily while looking for work',
     # 'will soon be moving into own accommodation' and 'will soon be moving into own accommodation'
-    people <- people %>% rename_all(tolower)
+    people <- people %>% rename_with(tolower)
 
     people <- people %>% rename_with(recode, whinform2 = "whinform")
 
