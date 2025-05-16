@@ -303,16 +303,16 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
 
     # find sum of leaver individuals in household
     hhleave <- people %>%
-      dplyr::group_by_at(key$serial_number[1]) %>%
+      dplyr::group_by(dply::pick(key$serial_number[1])) %>%
       dplyr::tally(leaver)
 
     # find number of separate leaver family units in household
     # this took a while to work out!
     hhleavefam <- people %>%
       filter(leaver_fam > 0) %>%
-      dplyr::group_by_at(c(key$serial_number[1], "leaver_fam")) %>%
+      dplyr::group_by(dplyr::pick(c(key$serial_number[1], "leaver_fam"))) %>%
       dplyr::count() %>%
-      dplyr::group_by_at(key$serial_number[1]) %>%
+      dplyr::group_by(dplyr::pick(key$serial_number[1])) %>%
       dplyr::tally()
 
     # We now have the number of 'leaver' individuals in 'hhleave',
