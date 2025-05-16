@@ -27,12 +27,19 @@ You can install the development version of `ehsr` from
 pak::pak("jgleeson/ehsr")
 ```
 
+Or
+
+``` r
+# install.packages("devtools")
+devtools::install_github("jgleeson/ehsr")
+```
+
 ## Example
 
-`ehsr` currently contains three functions, which import just the
+`ehsr` currently contains four functions, which import just the
 ‘derived’ EHS household datasets, a defined set of variables from the
-detailed household datasets, or a defined set from the detailed housing
-stock datasets.
+detailed household datasets, a list of households that contain concealed
+households or a defined set from the detailed housing stock datasets.
 
 If you have already downloaded the EHS special licence data for 2022 and
 have assigned the path where your EHS datasets are saved to the ‘folder’
