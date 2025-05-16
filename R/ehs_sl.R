@@ -265,55 +265,55 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
     # it at the moment' or 'Looking to buy/rent and expect(s) to find something affordable shortly'
     # When `definition` = 'wide', it also includes 'living here temporarily while looking for work',
     # 'will soon be moving into own accommodation' and 'will soon be moving into own accommodation'
-    people <- people %>% rename_with(tolower)
+    people <- people %>% dplyr::rename_with(tolower)
 
-    people <- people %>% rename_with(recode, whinform2 = "whinform")
+    people <- people %>% dplyr::rename_with(recode, whinform2 = "whinform")
 
     if(income_filter == "Off" & definition == "wide"){
       people <- people %>%
-        mutate(leaver = case_when(
+        mutate(leaver = dplyr::case_when(
           ((whinform %in% c(2:5)) & age >= min_age) ~ 1,
           TRUE ~ 0
         ))}
 
     if(income_filter == "On" & definition == "wide"){
       people <- people %>%
-        mutate(leaver = case_when(
+        mutate(leaver = dplyr::case_when(
           ((whinform %in% c(2:5)) & age >= min_age & teldv != -9) ~ 1,
           TRUE ~ 0
         ))}
 
     if(income_filter == "Off" & definition == "narrow"){
       people <- people %>%
-        mutate(leaver = case_when(
+        mutate(leaver = dplyr::case_when(
           ((whinform %in% c(3:4)) & age >= min_age) ~ 1,
           TRUE ~ 0
         ))}
 
     if(income_filter == "On" & definition == "narrow"){
       people <- people %>%
-        mutate(leaver = case_when(
+        mutate(leaver = dplyr::case_when(
           ((whinform %in% c(3:4)) & age >= min_age & teldv != -9) ~ 1,
           TRUE ~ 0
         ))}
 
     # find family number of 'leavers'
     people <- people %>%
-      mutate(leaver_fam = afam * leaver)
+      dplyr::mutate(leaver_fam = afam * leaver)
 
     # find sum of leaver individuals in household
     hhleave <- people %>%
-      group_by_at(key$serial_number[1]) %>%
-      tally(leaver)
+      dplyr::group_by_at(key$serial_number[1]) %>%
+      dplyr::tally(leaver)
 
     # find number of separate leaver family units in household
     # this took a while to work out!
     hhleavefam <- people %>%
       filter(leaver_fam > 0) %>%
-      group_by_at(c(key$serial_number[1], "leaver_fam")) %>%
-      count() %>%
-      group_by_at(key$serial_number[1]) %>%
-      tally()
+      dplyr::group_by_at(c(key$serial_number[1], "leaver_fam")) %>%
+      dplyr::count() %>%
+      dplyr::group_by_at(key$serial_number[1]) %>%
+      dplyr::tally()
 
     # We now have the number of 'leaver' individuals in 'hhleave',
     # the number of family units containing a leaver in 'hhleavefam',
@@ -324,7 +324,7 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
       rename(leaver_individuals = n) %>%
       left_join(hhleavefam, by = key$serial_number[1]) %>%
       rename(leaver_famunits = n) %>%
-      replace_na(list(leaver_famunits = 0))
+      tidyr::replace_na(list(leaver_famunits = 0))
 
     hh <- hh %>% select(-contains(c("quarter"))) # get rid of a rogue duplicated variable, if present
 
