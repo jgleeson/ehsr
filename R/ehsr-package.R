@@ -7,6 +7,7 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
+#' @importFrom dplyr rename_with
 #' @importFrom dplyr select
 #' @importFrom haven read_spss
 ## usethis namespace: end
