@@ -5,6 +5,7 @@
 #' @importFrom dplyr across
 #' @importFrom dplyr case_when
 #' @importFrom dplyr filter
+#' @importFrom dplyr if_else
 #' @importFrom dplyr left_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr recode
