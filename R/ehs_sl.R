@@ -367,7 +367,7 @@ hh_disabled <- function(folder, years){
     check_mentioned <- function(var) {
       disab |>
         select(serial_number, persno, all_of(var)) |>
-        dplyr::pivot_wider(names_from = persno, names_prefix = paste0(var),
+        tidyr::pivot_wider(names_from = persno, names_prefix = paste0(var),
                     values_from = var, id_cols = serial_number) |>
         mutate(mentioned = if_else(rowSums(across(starts_with(paste0(var))) == "Mentioned", na.rm = T) > 0,
                                    "Mentioned",
@@ -391,7 +391,7 @@ hh_disabled <- function(folder, years){
     if("WhChrSt" %in% colnames(disab)){
       wheelchair_place <-  disab |>
         select(serial_number, persno, WhChrSt) |>
-        dplyr::pivot_wider(names_from = persno, names_prefix = "WhChrSt",
+        tidyr::pivot_wider(names_from = persno, names_prefix = "WhChrSt",
                     values_from = WhChrSt, id_cols = serial_number) %>%
         mutate(wheelchair_place = if_else(rowSums(across(starts_with("WhChrSt")) == "Yes", na.rm = T) > 0,
                                           "Yes",
@@ -404,7 +404,7 @@ hh_disabled <- function(folder, years){
     # Whether anyone in the household finds wheelchair use in the home difficult
     wheelchair_difficult <- disab |>
       select(serial_number, persno, WHInside) |>
-      dplyr::pivot_wider(names_from = persno, names_prefix = "WHInside",
+      tidyr::pivot_wider(names_from = persno, names_prefix = "WHInside",
                   values_from = WHInside, id_cols = serial_number) %>%
       mutate(wheelchair_difficult = if_else(rowSums(across(starts_with("WHInside")) == "Fairly difficult", na.rm = T) > 0,
                                             "Fairly difficult",
