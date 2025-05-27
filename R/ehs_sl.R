@@ -344,6 +344,91 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
   })
 }
 
+#' Import data on whether household members have impairments and have difficulties using wheelchairs, and join onto special licence data
+#' @param folder A folder containing EHS downloaded from UKDS and unzipped
+#' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
+#' @export
+
+hh_disabled <- function(folder, years){
+  files <- list.files(folder, recursive = T)
+  hh <- purrr::map_dfr(years, function(year){
+    key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
+    message("Starting to import data for year(s) selected")
+
+    # import special licence household data using the existing function
+    d <- hh_detailed(folder, year)
+
+    # import person-level disability dataset
+    disab <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$disability), sep=""))
+    disab <- labelled::to_factor(disab, strict = TRUE, sort_levels = "none") # convert text variables to factors
+    disab <- disab %>% dplyr::rename(serial_number = key$serial_number[key$ehsyear == year])
+
+    # identify households where someone says they have a particular impairment
+    check_mentioned <- function(var) {
+      disab |>
+        select(serial_number, persno, all_of(var)) |>
+        dplyr::pivot_wider(names_from = persno, names_prefix = paste0(var),
+                    values_from = var, id_cols = serial_number) |>
+        mutate(mentioned = if_else(rowSums(across(starts_with(paste0(var))) == "Mentioned", na.rm = T) > 0,
+                                   "Mentioned",
+                                   if_else(rowSums(across(starts_with(paste0(var))) == "yes", na.rm = T) > 0,
+                                           "Mentioned",
+                                           if_else(rowSums(across(starts_with(paste0(var))) == "Not mentioned", na.rm = T) > 0,
+                                                   "Not mentioned",
+                                                   if_else(rowSums(across(starts_with(paste0(var))) == "no", na.rm = T) > 0,
+                                                           "Not mentioned", NA))))) %>%
+        select(-c(starts_with(paste0(var)))) |>
+        rename(!! paste0(paste0(var), "_mentioned") := mentioned)
+    }
+
+    impairments_mentioned <- purrr::map_dfc(c( "DsVision2", "DsHearing2", "DsMoblty2", "DsDexterity2", "DsLrnDf2",
+                                        "DsMemory2", "DsMental2", "DsStamina2", "DsSocial2", "DsOther2", "DsNo2"),
+                                     check_mentioned) |>
+      select("serial_number" = 1, ends_with("mentioned")) %>%
+      mutate(serial_number = as.character(serial_number))
+
+    # Whether people in the household who use a wheelchair have somewhere to put it
+    if("WhChrSt" %in% colnames(disab)){
+      wheelchair_place <-  disab |>
+        select(serial_number, persno, WhChrSt) |>
+        dplyr::pivot_wider(names_from = persno, names_prefix = "WhChrSt",
+                    values_from = WhChrSt, id_cols = serial_number) %>%
+        mutate(wheelchair_place = if_else(rowSums(across(starts_with("WhChrSt")) == "Yes", na.rm = T) > 0,
+                                          "Yes",
+                                          if_else(rowSums(across(starts_with("WhChrSt")) == "No", na.rm = T) > 0,
+                                                  "No", NA))) %>%
+        select(-c(starts_with("WhChrSt"))) %>%
+        mutate(serial_number = as.character(serial_number))
+    }
+
+    # Whether anyone in the household finds wheelchair use in the home difficult
+    wheelchair_difficult <- disab |>
+      select(serial_number, persno, WHInside) |>
+      dplyr::pivot_wider(names_from = persno, names_prefix = "WHInside",
+                  values_from = WHInside, id_cols = serial_number) %>%
+      mutate(wheelchair_difficult = if_else(rowSums(across(starts_with("WHInside")) == "Fairly difficult", na.rm = T) > 0,
+                                            "Fairly difficult",
+                                            if_else(rowSums(across(starts_with("WHInside")) == "Very difficult", na.rm = T) > 0,
+                                                    "Very difficult",
+                                                    if_else(rowSums(across(starts_with("WHInside")) == "Neither easy nor difficult", na.rm = T) > 0,
+                                                            "Neither easy nor difficult",
+                                                            if_else(rowSums(across(starts_with("WHInside")) == "Fairly easy", na.rm = T) > 0,
+                                                                    "Fairly easy",
+                                                                    if_else(rowSums(across(starts_with("WHInside")) == "Very easy", na.rm = T) > 0,
+                                                                            "Very easy", NA)))))) %>%
+      select(-c(starts_with("WHInside"))) %>%
+      mutate(serial_number = as.character(serial_number))
+
+    # join these onto the household dataset
+    if(exists("wheelchair_place")){d <- d %>% left_join(wheelchair_place, by = c("serial_number"))}
+
+    d <- d %>%
+      left_join(impairments_mentioned, by = c("serial_number")) %>%
+      left_join(wheelchair_difficult, by = c("serial_number"))
+
+  })}
+
+
 #' Import special licence EHS housing stock data - including selected variables from detailed datasets
 #' @param folder A folder containing EHS downloaded from UKDS and unzipped
 #' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
