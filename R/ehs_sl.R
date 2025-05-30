@@ -54,15 +54,14 @@ hh_detailed <- function(folder, years){
     owner <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$owner), sep=""))
     hhldtype <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$hhldtype), sep=""))
     identity <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$identity), sep=""))
-    if(file.exists(paste(folder, key$firstimp_int,sep=""))){firstimp <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp), sep=""))}
-    if(file.exists(paste(folder, key$fire,sep=""))){fire <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))}
-    if(file.exists(paste(folder, key$rooms,sep=""))){rooms <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp), sep=""))){firstimp <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))){fire <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))){rooms <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))}
 
     identity <- identity %>% dplyr::rename_with(tolower) %>% dplyr::filter(persno == hrp) # filter identity dataset to HRPs
 
     hh <- dplyr::left_join(gen, int, by = key$serial_number[1]) %>% # combine datasets
       dplyr::left_join(att %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
-      #     left_join(fire %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
       dplyr::left_join(renter %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
       dplyr::left_join(owner %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
       dplyr::left_join(dwelling %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
@@ -447,13 +446,13 @@ hstock_detailed <- function(folder, years){
     att <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$attitudes), sep=""))
     ins <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$interior), sep=""))
     aro <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$around), sep=""))
-    if(file.exists(paste(folder, key$firstimp_int,sep=""))){firstimp_int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))}
-    if(file.exists(paste(folder, key$vacant,sep=""))){vac <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$vacant), sep=""))}
-    if(file.exists(paste(folder, key$firstimp_phy,sep=""))){firstimp_phy <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_phy), sep=""))}
-    if(file.exists(paste(folder, key$shared,sep=""))){shared <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shared), sep=""))}
-    if(file.exists(paste(folder, key$shape,sep=""))){shape <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))}
-    if(file.exists(paste(folder, key$numflats,sep=""))){numflats <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))}
-    if(file.exists(paste(folder, key$modelled_physical,sep=""))){modelled_physical <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))){firstimp_int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$vacant), sep=""))){vac <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$vacant), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_phy), sep=""))){firstimp_phy <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_phy), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shared), sep=""))){shared <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shared), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))){shape <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))){numflats <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))){modelled_physical <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))}
 
     stock <- left_join(gen, int, by = key$serial_number[1]) %>%
       left_join(phy %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
