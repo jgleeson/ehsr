@@ -54,7 +54,7 @@ hh_detailed <- function(folder, years){
     owner <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$owner), sep=""))
     hhldtype <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$hhldtype), sep=""))
     identity <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$identity), sep=""))
-    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp), sep=""))){firstimp <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))){firstimp_int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))}
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))){fire <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))}
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))){rooms <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))}
 
@@ -68,7 +68,7 @@ hh_detailed <- function(folder, years){
       dplyr::left_join(hhldtype %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
       dplyr::left_join(identity %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1])
 
-    if(exists("firstimp")){hh <- hh %>% dplyr::left_join(firstimp %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("firstimp_int")){hh <- hh %>% dplyr::left_join(firstimp_int %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
     if(exists("fire")){hh <- hh %>% dplyr::left_join(fire %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
     if(exists("rooms")){hh <- hh %>% dplyr::left_join(rooms %>% dplyr::select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
 
