@@ -54,10 +54,10 @@ hh_detailed <- function(folder, years){
     owner <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$owner), sep=""))
     hhldtype <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$hhldtype), sep=""))
     identity <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$identity), sep=""))
-    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))){firstimp_int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))}
-    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))){fire <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))}
-    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))){rooms <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))}
-
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int))>0){firstimp_int <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$firstimp_int), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire))>0){fire <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$fire), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms))>0){rooms <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$rooms), sep=""))}
+    
     identity <- identity %>% dplyr::rename_with(tolower) %>% dplyr::filter(persno == hrp) # filter identity dataset to HRPs
 
     hh <- dplyr::left_join(gen, int, by = key$serial_number[1]) %>% # combine datasets
