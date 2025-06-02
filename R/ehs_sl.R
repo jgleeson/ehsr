@@ -452,7 +452,7 @@ hstock_detailed <- function(folder, years){
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shared), sep=""))){shared <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shared), sep=""))}
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))){shape <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))}
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))){numflats <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))}
-    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))){modelled_physical <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical))>0){modelled_physical <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))}
 
     stock <- left_join(gen, int, by = key$serial_number[1]) %>%
       left_join(phy %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
