@@ -453,6 +453,8 @@ hstock_detailed <- function(folder, years){
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape))>0){shape <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$shape), sep=""))}
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats))>0){numflats <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$numflats), sep=""))}
     if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical))>0){modelled_physical <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$modelled_physical), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$common), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$common))>0){common <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$common), sep=""))}
+    if(file.exists(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$amenity), sep="")) & length(stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$amenity))>0){amenity <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$amenity), sep=""))}
 
     stock <- left_join(gen, int, by = key$serial_number[1]) %>%
       left_join(phy %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1]) %>%
@@ -467,6 +469,8 @@ hstock_detailed <- function(folder, years){
     if(exists("shared")){stock <- stock %>% left_join(shared %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
     if(exists("shape")){stock <- stock %>% left_join(shape %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
     if(exists("numflats")){stock <- stock %>% left_join(numflats %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("common")){stock <- stock %>% left_join(common %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
+    if(exists("amenity")){stock <- stock %>% left_join(amenity %>% select(-any_of(c("GorEHS"))), by = key$serial_number[1])}
 
     stock <- labelled::to_factor(stock, strict = TRUE) # convert text variables to factors
 
@@ -585,6 +589,7 @@ hstock_detailed <- function(folder, years){
                                        "fexdstep", "finflush", "finbeden", "finbaten", "finwcen",
                                        "finwawen", "fintrpen", "fincircu", "finlands", "ffcastep", "ffcshare",
                                        "finramps", "fingrabr", "finlifts", "finhoist", "finelecm",
+                                       "fcplftex", "fcplftsz", "finkitdu", "finbatdu",
                                        "vnstdrdm", "vncrnton", "vnstrnmd", "vnstsdno", "vnstawnw", "fodoccup")))
 
 })}
