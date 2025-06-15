@@ -427,6 +427,69 @@ hh_disabled <- function(folder, years){
 
   })}
 
+#' Import data on whether people in household have or need adaptations. The questions were asked in 2014/15, 2019/20 and 2020/21
+#' @param folder A folder containing EHS downloaded from UKDS and unzipped
+#' @param years A list of years - the fewer and the more recent the less likely this is to return inconsistent data
+#' @export
+
+hh_adapt <- function(folder, years){
+  files <- list.files(folder, recursive = T)
+  hh <-  purrr::map_dfr(years, function(year){
+
+    key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
+
+    # import special licence household data using the existing function
+    d <- import_hh_sl(year)
+
+    # import household-level adaptations dataset and join it on
+    adapthh <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$adapthh), sep = ""))
+    adapthh <- labelled::to_factor(adapthh, strict = TRUE, sort_levels = "none") # convert text variables to factors
+
+    d <- d %>%
+      dplyr::mutate(serial_number = as.numeric(serial_number)) %>%
+      dplyr::left_join(adapthh, by = c("serial_number" = "serialanon"))
+
+    # import person-level adaptations dataset
+    adaptper <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$adaptpers), sep = ""))
+    adaptper <- labelled::to_factor(adaptper, strict = TRUE, sort_levels = "none") # convert text variables to factors
+
+    # calculate people who need an adaptation
+    # asked about all household members who answered "Yes" to "Do you have any physical or mental health conditions or illnesses lasting or expected to last for 12 months or more?"
+    dsadapt <- adaptper %>%
+      dplyr::group_by(serialanon, Dsadaptp) %>%
+      dplyr::tally() %>%
+      tidyr::pivot_wider(id_cols = serialanon, names_from = Dsadaptp, values_from = n, values_fill = 0) %>%
+      select(-c('NA', No), Dsadaptp = Yes)
+
+    # join that onto the household dataset
+    d <- d %>%
+      dplyr::left_join(dsadapt, by = c("serial_number" = "serialanon"))
+
+    # calculate people who say their home isn't suitable for them (on a subjective rather than objective basis)
+    # asked about all household members who answered "Yes" to "Do you have any physical or mental health conditions or illnesses lasting or expected to last for 12 months or more?"
+    # A "No" to HAS443ap means the respondent is saying the home is not suitable for them
+    dsunsuit <- adaptper %>%
+      group_by(serialanon, HAS443ap) %>%
+      dplyr::tally() %>%
+      tidyr::pivot_wider(id_cols = serialanon, names_from = HAS443ap, values_from = n, values_fill = 0) %>%
+      select(-c('NA', Yes), HAS443ap = No)
+
+    # join that onto the household dataset
+    d <- d %>%
+      dplyr::left_join(dsunsuit, by = c("serial_number" = "serialanon"))
+
+    # calculate household members attempting to move somewhere more suitable to cope with disability
+    # asked about all household members who answered "Yes" to "Do you have any physical or mental health conditions or illnesses lasting or expected to last for 12 months or more?"
+    dsmove <- adaptper %>%
+      group_by(serialanon, HAS443cp) %>%
+      dplyr::tally() %>%
+      tidyr::pivot_wider(id_cols = serialanon, names_from = HAS443cp, values_from = n, values_fill = 0) %>%
+      select(-c('NA', No), HAS443cp = Yes)
+
+    # join that onto the household dataset
+    d <- d %>%
+      dplyr::left_join(dsmove, by = c("serial_number" = "serialanon"))
+  })}
 
 #' Import special licence EHS housing stock data - including selected variables from detailed datasets
 #' @param folder A folder containing EHS downloaded from UKDS and unzipped
