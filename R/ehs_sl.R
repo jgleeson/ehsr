@@ -444,51 +444,52 @@ hh_adapt <- function(folder, years){
     # import household-level adaptations dataset and join it on
     adapthh <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$adapthh), sep = ""))
     adapthh <- labelled::to_factor(adapthh, strict = TRUE, sort_levels = "none") # convert text variables to factors
+    adapthh$serial_number <- as.character(key$serial_number[1])
 
     d <- d %>%
-      dplyr::mutate(serial_number = as.numeric(serial_number)) %>%
-      dplyr::left_join(adapthh, by = c("serial_number" = "serialanon"))
+      dplyr::left_join(adapthh, by = "serial_number")
 
     # import person-level adaptations dataset
     adaptper <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$adaptpers), sep = ""))
     adaptper <- labelled::to_factor(adaptper, strict = TRUE, sort_levels = "none") # convert text variables to factors
+    adaptper$serial_number <- as.character(key$serial_number[1])
 
     # calculate people who need an adaptation
     # asked about all household members who answered "Yes" to "Do you have any physical or mental health conditions or illnesses lasting or expected to last for 12 months or more?"
     dsadapt <- adaptper %>%
-      dplyr::group_by(serialanon, Dsadaptp) %>%
+      dplyr::group_by(serial_number, Dsadaptp) %>%
       dplyr::tally() %>%
-      tidyr::pivot_wider(id_cols = serialanon, names_from = Dsadaptp, values_from = n, values_fill = 0) %>%
+      tidyr::pivot_wider(id_cols = serial_number, names_from = Dsadaptp, values_from = n, values_fill = 0) %>%
       select(-c('NA', No), Dsadaptp = Yes)
 
     # join that onto the household dataset
     d <- d %>%
-      dplyr::left_join(dsadapt, by = c("serial_number" = "serialanon"))
+      dplyr::left_join(dsadapt, by = "serial_number")
 
     # calculate people who say their home isn't suitable for them (on a subjective rather than objective basis)
     # asked about all household members who answered "Yes" to "Do you have any physical or mental health conditions or illnesses lasting or expected to last for 12 months or more?"
     # A "No" to HAS443ap means the respondent is saying the home is not suitable for them
     dsunsuit <- adaptper %>%
-      group_by(serialanon, HAS443ap) %>%
+      dplyr::group_by(serial_number, HAS443ap) %>%
       dplyr::tally() %>%
-      tidyr::pivot_wider(id_cols = serialanon, names_from = HAS443ap, values_from = n, values_fill = 0) %>%
+      tidyr::pivot_wider(id_cols = serial_number, names_from = HAS443ap, values_from = n, values_fill = 0) %>%
       select(-c('NA', Yes), HAS443ap = No)
 
     # join that onto the household dataset
     d <- d %>%
-      dplyr::left_join(dsunsuit, by = c("serial_number" = "serialanon"))
+      dplyr::left_join(dsunsuit, by = "serial_number")
 
     # calculate household members attempting to move somewhere more suitable to cope with disability
     # asked about all household members who answered "Yes" to "Do you have any physical or mental health conditions or illnesses lasting or expected to last for 12 months or more?"
     dsmove <- adaptper %>%
-      group_by(serialanon, HAS443cp) %>%
+      dplyr::group_by(serial_number, HAS443cp) %>%
       dplyr::tally() %>%
-      tidyr::pivot_wider(id_cols = serialanon, names_from = HAS443cp, values_from = n, values_fill = 0) %>%
+      tidyr::pivot_wider(id_cols = serial_number, names_from = HAS443cp, values_from = n, values_fill = 0) %>%
       select(-c('NA', No), HAS443cp = Yes)
 
     # join that onto the household dataset
     d <- d %>%
-      dplyr::left_join(dsmove, by = c("serial_number" = "serialanon"))
+      dplyr::left_join(dsmove, by = "serial_number")
   })}
 
 #' Import special licence EHS housing stock data - including selected variables from detailed datasets
