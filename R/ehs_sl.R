@@ -439,7 +439,7 @@ hh_adapt <- function(folder, years){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
 
     # import special licence household data using the existing function
-    d <- import_hh_sl(year)
+    d <- hh_detailed(folder, year)
 
     # import household-level adaptations dataset and join it on
     adapthh <- haven::read_spss(paste(folder, stringr::str_subset(stringr::str_subset(files, pattern = key$ukda), pattern = key$adapthh), sep = ""))
