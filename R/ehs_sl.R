@@ -4,7 +4,7 @@
 #' @export
 
 hh_derived <- function(folder, years){
-  files <- list.files(folder, recursive = T)
+  files <- list.files(folder, recursive = T, pattern = "\\.sav$")
   hh <- purrr::map_dfr(years, function(year){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
     message("Starting to import data for year(s) selected")
@@ -39,7 +39,7 @@ hh_derived <- function(folder, years){
 #' @export
 
 hh_detailed <- function(folder, years){
-  files <- list.files(folder, recursive = T)
+  files <- list.files(folder, recursive = T, pattern = "\\.sav$")
   hh <- purrr::map_dfr(years, function(year){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
 
@@ -188,6 +188,8 @@ hh_detailed <- function(folder, years){
                                  "accom", "hsetype", "flttyp",
                                  "yrbult1", "nbedsx", "dwage5x", "dwellnew",
                                  "bedrqx", "bedstdx", "crowd",
+                                 "useallli_orig", "usel2dy_orig", "useallbd_orig", "useb2dy_orig", "useallli_upd", "usel2dy_upd", "useallbd_upd", "useb2dy_upd",
+                                 "CasLetStay", "CasLetRent",
                                  "nstud", "hhempx", "emphrpx", "studhrp",
                                  "sexhrp", "sexprt",
                                  "ethhrp2x", "ethhrp4x", "ethhrp8x", "ethprt8x",
@@ -246,7 +248,7 @@ hh_detailed <- function(folder, years){
 #' @export
 
 hh_concealed <- function(folder, years, min_age, income_filter = "Off", definition = "narrow"){
-  files <- list.files(folder, recursive = T)
+  files <- list.files(folder, recursive = T, pattern = "\\.sav$")
   hh <- purrr::map_dfr(years, function(year){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
 
@@ -349,7 +351,7 @@ hh_concealed <- function(folder, years, min_age, income_filter = "Off", definiti
 #' @export
 
 hh_disabled <- function(folder, years){
-  files <- list.files(folder, recursive = T)
+  files <- list.files(folder, recursive = T, pattern = "\\.sav$")
   hh <- purrr::map_dfr(years, function(year){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
     message("Starting to import data for year(s) selected")
@@ -433,7 +435,7 @@ hh_disabled <- function(folder, years){
 #' @export
 
 hh_adapt <- function(folder, years){
-  files <- list.files(folder, recursive = T)
+  files <- list.files(folder, recursive = T, pattern = "\\.sav$")
   hh <-  purrr::map_dfr(years, function(year){
 
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "household") # import key lookup table
@@ -498,7 +500,7 @@ hh_adapt <- function(folder, years){
 #' @export
 
 hstock_detailed <- function(folder, years){
-  files <- list.files(folder, recursive = T)
+  files <- list.files(folder, recursive = T, pattern = "\\.sav$")
   hh <- purrr::map_dfr(years, function(year){
     key <- dplyr::filter(sl_key, ehsyear == year & dataset == "stock") # import key lookup table
 
