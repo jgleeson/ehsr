@@ -189,7 +189,7 @@ hh_detailed <- function(folder, years){
                                  "yrbult1", "nbedsx", "dwage5x", "dwellnew",
                                  "bedrqx", "bedstdx", "crowd",
                                  "useallli_orig", "usel2dy_orig", "useallbd_orig", "useb2dy_orig", "useallli_upd", "usel2dy_upd", "useallbd_upd", "useb2dy_upd",
-                                 "CasLetStay", "CasLetRent",
+                                 "casletstay", "casletrent",
                                  "nstud", "hhempx", "emphrpx", "studhrp",
                                  "sexhrp", "sexprt",
                                  "ethhrp2x", "ethhrp4x", "ethhrp8x", "ethprt8x",
